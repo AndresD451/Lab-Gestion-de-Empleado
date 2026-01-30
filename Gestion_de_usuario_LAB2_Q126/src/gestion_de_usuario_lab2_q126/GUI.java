@@ -4,11 +4,12 @@
  */
 package gestion_de_usuario_lab2_q126;
 
-import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.util.Calendar;
+import com.toedter.calendar.JDateChooser;
+
 
 /**
  *
@@ -275,7 +276,7 @@ public class GUI extends JFrame {
         tfCodigoContrato.setBounds(210, 30, 150, 25);
         panel.add(tfCodigoContrato);
 
-        JLabel lblFecha = new JLabel("Nueva Fecha Fin:");
+        JLabel lblFecha = new JLabel("Nueva Fecha Fin:"); 
         lblFecha.setBounds(20, 70, 150, 25);
         panel.add(lblFecha);
 
