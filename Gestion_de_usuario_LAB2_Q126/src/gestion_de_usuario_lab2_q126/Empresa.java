@@ -77,5 +77,21 @@ public class Empresa {
 
         return r;
     }
+    
+    public Empleado[] getEmpleados() {
+    return empleados;
+}
+    
+    public boolean existeEmpleado(String codigo) {
+
+    for (Empleado e : empleados) {
+        if (e != null && e.getCodigo().equals(codigo)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+    
 }
 

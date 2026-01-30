@@ -54,5 +54,8 @@ public class Empleado {
     public String getCodigo() {
         return codigo;
     }
+    public String getArchivoFoto() {
+    return rutaFoto;
+}
 }
 

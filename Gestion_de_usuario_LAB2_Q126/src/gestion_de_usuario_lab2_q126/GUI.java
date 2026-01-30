@@ -148,6 +148,7 @@ public class GUI extends JFrame {
         panel.add(btnRegistrar);
 
         btnRegistrar.addActionListener(e -> {
+
             String codigo = tfCodigo.getText();
             String nombre = tfNombre.getText();
             double salario = Double.parseDouble(tfSalario.getText());
@@ -156,7 +157,15 @@ public class GUI extends JFrame {
             fechaContratacion.setTime(dcFechaContratacion.getDate());
 
             String tipo = (String) cbTipoEmpleado.getSelectedItem();
+            if (empresa.existeEmpleado(codigo)) {
+                JOptionPane.showMessageDialog(this,
+                    "Ya existe un empleado con ese código",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
+            
             if (tipo.equals("Estándar")) {
                 empresa.registrarEmpleado(new Empleado(codigo, nombre, salario,
                         archivoFoto != null ? archivoFoto.getAbsolutePath() : "",
@@ -217,13 +226,26 @@ public class GUI extends JFrame {
         panel.add(btnRegistrarHoras);
 
         btnRegistrarHoras.addActionListener(e -> {
+
             String codigo = tfCodigoHoras.getText();
+
+            if (!empresa.existeEmpleado(codigo)) {
+                JOptionPane.showMessageDialog(this,
+                    "Empleado no encontrado",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             int horas = Integer.parseInt(tfHoras.getText());
             empresa.registrarHoras(codigo, horas);
+
             JOptionPane.showMessageDialog(this, "Horas registradas correctamente");
+
             tfCodigoHoras.setText("");
             tfHoras.setText("");
         });
+
 
         return panel;
     }
@@ -253,13 +275,23 @@ public class GUI extends JFrame {
         panel.add(btnRegistrarVenta);
 
         btnRegistrarVenta.addActionListener(e -> {
+
             String codigo = tfCodigoVentas.getText();
+
+            if (!empresa.existeEmpleado(codigo)) {
+                JOptionPane.showMessageDialog(this,"Empleado no encontrado","Error",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             double monto = Double.parseDouble(tfMontoVenta.getText());
             empresa.registrarVenta(codigo, monto);
+
             JOptionPane.showMessageDialog(this, "Venta registrada correctamente");
+
             tfCodigoVentas.setText("");
             tfMontoVenta.setText("");
         });
+
 
         return panel;
     }
@@ -289,35 +321,87 @@ public class GUI extends JFrame {
         panel.add(btnActualizarContrato);
 
         btnActualizarContrato.addActionListener(e -> {
+
             String codigo = tfCodigoContrato.getText();
+
+            if (!empresa.existeEmpleado(codigo)) {
+                JOptionPane.showMessageDialog(this,"Empleado no encontrado","Error",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             Calendar nuevaFecha = Calendar.getInstance();
             nuevaFecha.setTime(dcNuevaFechaFin.getDate());
+
             empresa.actualizarContrato(codigo, nuevaFecha);
+
             JOptionPane.showMessageDialog(this, "Contrato actualizado correctamente");
+
             tfCodigoContrato.setText("");
         });
+
 
         return panel;
     }
 
     private JPanel crearPanelReporte() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
 
-        taReporte = new JTextArea();
-        taReporte.setEditable(false);
-        taReporte.setFont(new Font("Monospaced", Font.PLAIN, 12));
+    JPanel panel = new JPanel(new BorderLayout());
 
-        JScrollPane scroll = new JScrollPane(taReporte);
-        panel.add(scroll, BorderLayout.CENTER);
+    JPanel panelEmpleados = new JPanel();
+    panelEmpleados.setLayout(new BoxLayout(panelEmpleados, BoxLayout.Y_AXIS));
 
-        btnGenerarReporte = new JButton("Generar Reporte");
-        panel.add(btnGenerarReporte, BorderLayout.SOUTH);
+    JScrollPane scroll = new JScrollPane(panelEmpleados);
+    panel.add(scroll, BorderLayout.CENTER);
 
-        btnGenerarReporte.addActionListener(e -> {
-            taReporte.setText(empresa.generarReporte());
-        });
+    btnGenerarReporte = new JButton("Generar Reporte");
+    panel.add(btnGenerarReporte, BorderLayout.SOUTH);
 
-        return panel;
-    }
+    btnGenerarReporte.addActionListener(e -> {
+
+        panelEmpleados.removeAll();
+
+        for (Empleado emp : empresa.getEmpleados()) { 
+            
+            if (emp == null) continue;
+
+            JPanel panelEmpleado = new JPanel(new BorderLayout());
+            panelEmpleado.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+
+            // FOTO
+            JLabel lblFoto;
+
+            if (emp.getArchivoFoto() != null && !emp.getArchivoFoto().isEmpty()) {
+                ImageIcon icon = new ImageIcon(emp.getArchivoFoto());
+                Image img = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+                lblFoto = new JLabel(new ImageIcon(img));
+            } else {
+                lblFoto = new JLabel("Sin Foto");
+                lblFoto.setPreferredSize(new Dimension(100,100));
+                lblFoto.setHorizontalAlignment(SwingConstants.CENTER);
+            }
+
+            panelEmpleado.add(lblFoto, BorderLayout.WEST);
+
+            // TEXTO
+            JTextArea info = new JTextArea(emp.mostrarInformacion());
+            info.setEditable(false);
+            info.setFont(new Font("Monospaced", Font.PLAIN, 12));
+            info.setOpaque(false);
+
+            panelEmpleado.add(info, BorderLayout.CENTER);
+
+            panelEmpleado.setMaximumSize(new Dimension(Integer.MAX_VALUE,130));
+
+            panelEmpleados.add(panelEmpleado);
+            panelEmpleados.add(Box.createVerticalStrut(10));
+            panelEmpleados.add(new JSeparator());
+        }
+
+        panelEmpleados.revalidate();
+        panelEmpleados.repaint();
+    });
+
+    return panel;
+}
+
 }
