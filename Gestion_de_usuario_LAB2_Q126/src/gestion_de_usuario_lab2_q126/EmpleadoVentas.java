@@ -12,8 +12,8 @@ import java.util.Calendar;
 public class EmpleadoVentas extends Empleado{
     private double[] ventasMensual;
     private double tasaComision;
-    public EmpleadoVentas(String code, String nombre, double salarioBase, String ruteFoto, double tasaComision ){
-    super(code, nombre, salarioBase, ruteFoto);
+    public EmpleadoVentas(String code, String nombre, double salarioBase, String ruteFoto, Calendar fechaContrato,double tasaComision ){
+    super(code, nombre, salarioBase, ruteFoto, fechaContrato);
     this.tasaComision=tasaComision;
     this.ventasMensual=new double[12];
 }
