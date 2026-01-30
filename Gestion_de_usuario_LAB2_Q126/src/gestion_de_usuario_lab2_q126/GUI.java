@@ -12,7 +12,7 @@ import java.util.Date;
  *
  * @author user
  */
-public class GUI extends JFrame {
+public class GUI extends JFrame { 
 
     private Empresa empresa = new Empresa(50);
 
