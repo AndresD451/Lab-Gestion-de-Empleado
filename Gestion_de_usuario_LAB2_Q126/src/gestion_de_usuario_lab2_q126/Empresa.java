@@ -10,7 +10,7 @@ import java.util.Calendar;
  * @author Nathan
  */
 
-//Gestión general de empleados
+//Gestión general
 public class Empresa {
 
     private Empleado[] empleados;
@@ -22,9 +22,7 @@ public class Empresa {
     }
 
     public boolean registrarEmpleado(Empleado e) {
-        if (buscarEmpleado(e.getCodigo()) != null || contador >= empleados.length) {
-            return false;
-        }
+        if (buscarEmpleado(e.getCodigo()) != null) return false;
         empleados[contador++] = e;
         return true;
     }
@@ -40,9 +38,7 @@ public class Empresa {
 
     public void registrarHoras(String codigo, int horas) {
         Empleado e = buscarEmpleado(codigo);
-        if (e != null) {
-            e.registrarHoras(horas);
-        }
+        if (e != null) e.registrarHoras(horas);
     }
 
     public void registrarVenta(String codigo, double monto) {
@@ -65,21 +61,21 @@ public class Empresa {
     }
 
     public String generarReporte() {
-        String reporte = "";
+        String r = "";
         int est = 0, temp = 0, ven = 0;
 
         for (int i = 0; i < contador; i++) {
-            reporte += empleados[i].mostrarInformacion() + "\n";
+            r += empleados[i].mostrarInformacion() + "\n";
             if (empleados[i] instanceof EmpleadoVentas) ven++;
             else if (empleados[i] instanceof EmpleadoTemporal) temp++;
             else est++;
         }
 
-        reporte += "\nEstándar: " + est +
-                   "\nTemporales: " + temp +
-                   "\nVentas: " + ven;
+        r += "\nEstándar: " + est +
+             "\nTemporales: " + temp +
+             "\nVentas: " + ven;
 
-        return reporte;
+        return r;
     }
 }
 

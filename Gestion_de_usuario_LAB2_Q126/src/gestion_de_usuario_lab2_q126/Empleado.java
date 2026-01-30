@@ -10,6 +10,7 @@ import java.util.Calendar;
  * @author Nathan
  */
 
+//Clase base 
 public class Empleado {
 
     protected String codigo;
@@ -19,15 +20,15 @@ public class Empleado {
     protected int horasTrabajadas;
     protected String rutaFoto;
 
-    public Empleado(String codigo, String nombre, double salarioBase, String rutaFoto) {
+    public Empleado(String codigo, String nombre, double salarioBase,
+                    String rutaFoto, Calendar fechaContratacion) {
         this.codigo = codigo;
         this.nombre = nombre;
         this.salarioBase = salarioBase;
         this.rutaFoto = rutaFoto;
-        this.fechaContratacion = Calendar.getInstance(); 
+        this.fechaContratacion = fechaContratacion;
         this.horasTrabajadas = 0;
-    } 
-
+    }
 
     public void registrarHoras(int horas) {
         if (horas > 0) {
@@ -35,10 +36,10 @@ public class Empleado {
         }
     }
 
+    //Pago proporcional con deducción
     public double calcularPago() {
-        double pagoProporcional = (salarioBase / 160.0) * horasTrabajadas;
-        double deduccion = pagoProporcional * 0.035;
-        return pagoProporcional - deduccion;
+        double pago = (salarioBase / 160.0) * horasTrabajadas;
+        return pago - (pago * 0.035);
     }
 
     public String mostrarInformacion() {
