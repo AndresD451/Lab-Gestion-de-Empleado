@@ -6,8 +6,8 @@ public class EmpleadoTemporal extends Empleado {
     private Calendar fechaFinContrato;
 
     // el construtor
-    public EmpleadoTemporal(String codigo, String nombre, double salarioBase, String rutaFoto, Calendar fechaFinContrato) {
-        super(codigo, nombre, salarioBase, rutaFoto);
+    public EmpleadoTemporal(String codigo, String nombre, double salarioBase, String rutaFoto, Calendar fechaContratacion, Calendar fechaFinContrato) {
+        super(codigo, nombre, salarioBase, rutaFoto, fechaContratacion);
         this.fechaFinContrato = fechaFinContrato;
     }
 
