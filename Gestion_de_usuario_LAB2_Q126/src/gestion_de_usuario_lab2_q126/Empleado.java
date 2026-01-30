@@ -26,7 +26,7 @@ public class Empleado {
         this.rutaFoto = rutaFoto;
         this.fechaContratacion = Calendar.getInstance(); 
         this.horasTrabajadas = 0;
-    }
+    } 
 
 
     public void registrarHoras(int horas) {
