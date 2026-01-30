@@ -27,5 +27,18 @@ public class EmpleadoVentas extends Empleado{
        
         
     }
+    public double calcComisonMes(){
+        Calendar diaHoy=Calendar.getInstance();
+        int mes;
+        mes=diaHoy.get(Calendar.MONTH);
+        return this.ventasMensual[mes]*this.tasaComision;
+    }
+    
+    @Override
+    public double calcularPago(){
+       double pagoBase=(this.salarioBase/160)*this.horasTrabajadas;
+       return pagoBase+calcComisonMes();
+    }
+
     
 }
