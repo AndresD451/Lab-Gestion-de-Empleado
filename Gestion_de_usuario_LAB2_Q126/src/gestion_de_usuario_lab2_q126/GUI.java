@@ -3,259 +3,320 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package gestion_de_usuario_lab2_q126;
+
+import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
-import java.awt.*; 
+import java.awt.*;
+import java.io.File;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  *
  * @author user
  */
-public class GUI extends JFrame { 
 
-    private Empresa empresa = new Empresa(50);
+public class GUI extends JFrame {
 
-    private JTextField txtCodigo, txtNombre, txtSalario, txtHoras, txtVenta, txtComision;
-    private JTextArea areaReporte;
-    private JLabel lblFoto;
-    private String rutaFoto = "";
+    private Empresa empresa;
 
-    private JComboBox<String> comboTipo;
-    private JDateChooser calContratacion, calFinContrato;
+    private JTabbedPane pestañas;
+
+    // Registro Empleado
+    private JTextField tfCodigo, tfNombre, tfSalario, tfTasaComision;
+    private JButton btnSeleccionarFoto, btnRegistrar;
+    private JComboBox<String> cbTipoEmpleado;
+    private JDateChooser dcFechaContratacion, dcFechaFinContrato;
+    private File archivoFoto; 
+
+    // Registro Horas
+    private JTextField tfCodigoHoras, tfHoras;
+    private JButton btnRegistrarHoras;
+
+    // Registro Ventas
+    private JTextField tfCodigoVentas, tfMontoVenta;
+    private JButton btnRegistrarVenta;
+
+    // Actualizar Contrato
+    private JTextField tfCodigoContrato;
+    private JDateChooser dcNuevaFechaFin;
+    private JButton btnActualizarContrato;
+
+    // Reporte
+    private JTextArea taReporte;
+    private JButton btnGenerarReporte;
 
     public GUI() {
+        empresa = new Empresa(50);
+
         setTitle("Gestión de Empleados");
-        setSize(900, 650);
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
 
-        add(panelRegistro(), BorderLayout.NORTH);
-        add(panelCentro(), BorderLayout.CENTER);
-        add(panelReporte(), BorderLayout.SOUTH);
+        pestañas = new JTabbedPane();
+
+        pestañas.addTab("Registrar Empleado", crearPanelRegistrarEmpleado());
+        pestañas.addTab("Registrar Horas", crearPanelRegistrarHoras());
+        pestañas.addTab("Registrar Ventas", crearPanelRegistrarVentas());
+        pestañas.addTab("Actualizar Contrato", crearPanelActualizarContrato());
+        pestañas.addTab("Reporte", crearPanelReporte());
+
+        add(pestañas);
+        setVisible(true);
     }
 
-    /* ================= PANEL REGISTRO ================= */
-    private JPanel panelRegistro() {
-        JPanel p = new JPanel(new GridBagLayout());
-        p.setBorder(new TitledBorder("Registro de Empleado"));
+    private JPanel crearPanelRegistrarEmpleado() {
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(5, 5, 5, 5);
-        c.fill = GridBagConstraints.HORIZONTAL;
+        JLabel lblTipo = new JLabel("Tipo Empleado:");
+        lblTipo.setBounds(20, 20, 120, 25);
+        panel.add(lblTipo);
 
-        txtCodigo = new JTextField(10);
-        txtNombre = new JTextField(15);
-        txtSalario = new JTextField(10);
-        txtComision = new JTextField(10);
+        cbTipoEmpleado = new JComboBox<>(new String[]{"Estándar", "Temporal", "Ventas"});
+        cbTipoEmpleado.setBounds(150, 20, 120, 25);
+        panel.add(cbTipoEmpleado);
 
-        calContratacion = new JDateChooser();
-        calFinContrato = new JDateChooser();
+        JLabel lblCodigo = new JLabel("Código:");
+        lblCodigo.setBounds(20, 60, 100, 25);
+        panel.add(lblCodigo);
 
-        comboTipo = new JComboBox<>(new String[]{
-                "Empleado Estándar", "Empleado Temporal", "Empleado Ventas"
-        });
+        tfCodigo = new JTextField();
+        tfCodigo.setBounds(150, 60, 150, 25);
+        panel.add(tfCodigo);
 
-        lblFoto = new JLabel("Sin foto", SwingConstants.CENTER);
-        lblFoto.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        JLabel lblNombre = new JLabel("Nombre:");
+        lblNombre.setBounds(20, 100, 100, 25);
+        panel.add(lblNombre);
 
-        JButton btnFoto = new JButton("Cargar Foto");
-        btnFoto.addActionListener(e -> seleccionarFoto());
+        tfNombre = new JTextField();
+        tfNombre.setBounds(150, 100, 200, 25);
+        panel.add(tfNombre);
 
-        JButton btnRegistrar = new JButton("Registrar Empleado");
-        btnRegistrar.addActionListener(e -> registrarEmpleado());
+        JLabel lblSalario = new JLabel("Salario Base:");
+        lblSalario.setBounds(20, 140, 100, 25);
+        panel.add(lblSalario);
 
-        int y = 0;
+        tfSalario = new JTextField();
+        tfSalario.setBounds(150, 140, 100, 25);
+        panel.add(tfSalario);
 
-        c.gridx = 0; c.gridy = y; p.add(new JLabel("Código"), c);
-        c.gridx = 1; p.add(txtCodigo, c);
-        c.gridx = 2; p.add(new JLabel("Nombre"), c);
-        c.gridx = 3; p.add(txtNombre, c);
+        JLabel lblFoto = new JLabel("Foto:");
+        lblFoto.setBounds(20, 180, 100, 25);
+        panel.add(lblFoto);
 
-        y++;
-        c.gridx = 0; c.gridy = y; p.add(new JLabel("Salario"), c);
-        c.gridx = 1; p.add(txtSalario, c);
-        c.gridx = 2; p.add(new JLabel("Tipo"), c);
-        c.gridx = 3; p.add(comboTipo, c);
+        btnSeleccionarFoto = new JButton("Seleccionar Archivo...");
+        btnSeleccionarFoto.setBounds(150, 180, 180, 25);
+        panel.add(btnSeleccionarFoto);
 
-        y++;
-        c.gridx = 0; c.gridy = y; p.add(new JLabel("Fecha Contratación"), c);
-        c.gridx = 1; p.add(calContratacion, c);
-        c.gridx = 2; p.add(new JLabel("Fin Contrato"), c);
-        c.gridx = 3; p.add(calFinContrato, c);
-
-        y++;
-        c.gridx = 0; c.gridy = y; p.add(new JLabel("Comisión"), c);
-        c.gridx = 1; p.add(txtComision, c);
-        c.gridx = 2; p.add(btnFoto, c);
-        c.gridx = 3; p.add(lblFoto, c);
-
-        y++;
-        c.gridx = 0; c.gridy = y; c.gridwidth = 4;
-        p.add(btnRegistrar, c);
-
-        return p;
-    }
-
-    /* ================= PANEL CENTRAL ================= */
-    private JPanel panelCentro() {
-        JPanel p = new JPanel(new GridLayout(1, 2, 10, 10));
-
-        p.add(panelAcciones());
-        p.add(panelPago());
-
-        return p;
-    }
-
-    /* ================= PANEL ACCIONES ================= */
-    private JPanel panelAcciones() {
-        JPanel p = new JPanel(new GridBagLayout());
-        p.setBorder(new TitledBorder("Registro de Actividad"));
-
-        GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(5, 5, 5, 5);
-        c.fill = GridBagConstraints.HORIZONTAL;
-
-        txtHoras = new JTextField(8);
-        txtVenta = new JTextField(8);
-
-        JButton btnHoras = new JButton("Registrar Horas");
-        JButton btnVenta = new JButton("Registrar Venta");
-
-        btnHoras.addActionListener(e -> {
-            if (!txtCodigo.getText().isEmpty() && !txtHoras.getText().isEmpty()) {
-                if (txtHoras.getText().matches("\\d+")) {
-                    empresa.registrarHoras(txtCodigo.getText(), Integer.parseInt(txtHoras.getText()));
-                } else {
-                    JOptionPane.showMessageDialog(this, "Horas inválidas");
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Ingrese código y horas");
+        btnSeleccionarFoto.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            int opcion = chooser.showOpenDialog(this);
+            if (opcion == JFileChooser.APPROVE_OPTION) {
+                archivoFoto = chooser.getSelectedFile();
+                btnSeleccionarFoto.setText(archivoFoto.getName());
             }
         });
 
-        btnVenta.addActionListener(e -> {
-            if (!txtCodigo.getText().isEmpty() && !txtVenta.getText().isEmpty()) {
-                if (txtVenta.getText().matches("\\d+(\\.\\d+)?")) {
-                    empresa.registrarVenta(txtCodigo.getText(), Double.parseDouble(txtVenta.getText()));
-                } else {
-                    JOptionPane.showMessageDialog(this, "Venta inválida");
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Ingrese código y venta");
+        JLabel lblFecha = new JLabel("Fecha Contratación:");
+        lblFecha.setBounds(20, 220, 150, 25);
+        panel.add(lblFecha);
+
+        dcFechaContratacion = new JDateChooser();
+        dcFechaContratacion.setBounds(150, 220, 150, 25);
+        panel.add(dcFechaContratacion);
+
+        JLabel lblFinContrato = new JLabel("Fecha Fin Contrato (temporal):");
+        lblFinContrato.setBounds(20, 260, 200, 25);
+        panel.add(lblFinContrato);
+
+        dcFechaFinContrato = new JDateChooser();
+        dcFechaFinContrato.setBounds(220, 260, 150, 25);
+        panel.add(dcFechaFinContrato);
+
+        JLabel lblTasa = new JLabel("Tasa Comisión (ventas):");
+        lblTasa.setBounds(20, 300, 180, 25);
+        panel.add(lblTasa);
+
+        tfTasaComision = new JTextField();
+        tfTasaComision.setBounds(200, 300, 80, 25);
+        panel.add(tfTasaComision);
+
+        btnRegistrar = new JButton("Registrar");
+        btnRegistrar.setBounds(150, 350, 120, 35);
+        panel.add(btnRegistrar);
+
+        btnRegistrar.addActionListener(e -> {
+            String codigo = tfCodigo.getText();
+            String nombre = tfNombre.getText();
+            double salario = Double.parseDouble(tfSalario.getText());
+
+            Calendar fechaContratacion = Calendar.getInstance();
+            fechaContratacion.setTime(dcFechaContratacion.getDate());
+
+            String tipo = (String) cbTipoEmpleado.getSelectedItem();
+
+            if (tipo.equals("Estándar")) {
+                empresa.registrarEmpleado(new Empleado(codigo, nombre, salario,
+                        archivoFoto != null ? archivoFoto.getAbsolutePath() : "",
+                        fechaContratacion));
+            } else if (tipo.equals("Temporal")) {
+                Calendar fechaFin = Calendar.getInstance();
+                fechaFin.setTime(dcFechaFinContrato.getDate());
+                empresa.registrarEmpleado(new EmpleadoTemporal(codigo, nombre, salario,
+                        archivoFoto != null ? archivoFoto.getAbsolutePath() : "",
+                        fechaContratacion, fechaFin));
+            } else if (tipo.equals("Ventas")) {
+                double tasa = Double.parseDouble(tfTasaComision.getText());
+                empresa.registrarEmpleado(new EmpleadoVentas(codigo, nombre, salario,
+                        archivoFoto != null ? archivoFoto.getAbsolutePath() : "",
+                        fechaContratacion, tasa));
             }
+
+            JOptionPane.showMessageDialog(this, "Empleado registrado con éxito");
+            limpiarCamposRegistroEmpleado();
         });
 
-        c.gridx = 0; c.gridy = 0; p.add(new JLabel("Horas"), c);
-        c.gridx = 1; p.add(txtHoras, c);
-        c.gridx = 2; p.add(btnHoras, c);
-
-        c.gridx = 0; c.gridy = 1; p.add(new JLabel("Venta"), c);
-        c.gridx = 1; p.add(txtVenta, c);
-        c.gridx = 2; p.add(btnVenta, c);
-
-        return p;
+        return panel;
     }
 
-    /* ================= PANEL PAGO ================= */
-    private JPanel panelPago() {
-        JPanel p = new JPanel(new BorderLayout());
-        p.setBorder(new TitledBorder("Pago"));
+    private void limpiarCamposRegistroEmpleado() {
+        tfCodigo.setText("");
+        tfNombre.setText("");
+        tfSalario.setText("");
+        tfTasaComision.setText("");
+        btnSeleccionarFoto.setText("Seleccionar Archivo...");
+        archivoFoto = null;
+        dcFechaContratacion.setDate(null);
+        dcFechaFinContrato.setDate(null);
+    }
 
-        JButton btnPago = new JButton("Calcular Pago");
-        btnPago.setFont(btnPago.getFont().deriveFont(Font.BOLD, 16f));
+    private JPanel crearPanelRegistrarHoras() {
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
 
-        btnPago.addActionListener(e -> {
-            if (!txtCodigo.getText().isEmpty()) {
-                JOptionPane.showMessageDialog(this,
-                        "Pago: L. " + empresa.calcularPagoEmpleado(txtCodigo.getText()));
-            } else {
-                JOptionPane.showMessageDialog(this, "Ingrese código");
-            }
+        JLabel lblCodigo = new JLabel("Código Empleado:");
+        lblCodigo.setBounds(20, 30, 120, 25);
+        panel.add(lblCodigo);
+
+        tfCodigoHoras = new JTextField();
+        tfCodigoHoras.setBounds(150, 30, 150, 25);
+        panel.add(tfCodigoHoras);
+
+        JLabel lblHoras = new JLabel("Horas trabajadas:");
+        lblHoras.setBounds(20, 70, 120, 25);
+        panel.add(lblHoras);
+
+        tfHoras = new JTextField();
+        tfHoras.setBounds(150, 70, 100, 25);
+        panel.add(tfHoras);
+
+        btnRegistrarHoras = new JButton("Registrar Horas");
+        btnRegistrarHoras.setBounds(150, 110, 150, 30);
+        panel.add(btnRegistrarHoras);
+
+        btnRegistrarHoras.addActionListener(e -> {
+            String codigo = tfCodigoHoras.getText();
+            int horas = Integer.parseInt(tfHoras.getText());
+            empresa.registrarHoras(codigo, horas);
+            JOptionPane.showMessageDialog(this, "Horas registradas correctamente");
+            tfCodigoHoras.setText("");
+            tfHoras.setText("");
         });
 
-        p.add(btnPago, BorderLayout.CENTER);
-        return p;
+        return panel;
     }
 
-    /* ================= PANEL REPORTE ================= */
-    private JScrollPane panelReporte() {
-        areaReporte = new JTextArea(8, 80);
-        areaReporte.setEditable(false);
-        areaReporte.setFont(new Font("Monospaced", Font.PLAIN, 12));
+    private JPanel crearPanelRegistrarVentas() {
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
 
-        JButton btnReporte = new JButton("Generar Reporte");
-        btnReporte.addActionListener(e ->
-                areaReporte.setText(empresa.generarReporte())
-        );
+        JLabel lblCodigo = new JLabel("Código Empleado:");
+        lblCodigo.setBounds(20, 30, 120, 25);
+        panel.add(lblCodigo);
 
-        JPanel p = new JPanel(new BorderLayout());
-        p.setBorder(new TitledBorder("Reporte General"));
-        p.add(new JScrollPane(areaReporte), BorderLayout.CENTER);
-        p.add(btnReporte, BorderLayout.SOUTH);
+        tfCodigoVentas = new JTextField();
+        tfCodigoVentas.setBounds(150, 30, 150, 25);
+        panel.add(tfCodigoVentas);
 
-        return new JScrollPane(p);
+        JLabel lblMonto = new JLabel("Monto Venta:");
+        lblMonto.setBounds(20, 70, 120, 25);
+        panel.add(lblMonto);
+
+        tfMontoVenta = new JTextField();
+        tfMontoVenta.setBounds(150, 70, 100, 25);
+        panel.add(tfMontoVenta);
+
+        btnRegistrarVenta = new JButton("Registrar Venta");
+        btnRegistrarVenta.setBounds(150, 110, 150, 30);
+        panel.add(btnRegistrarVenta);
+
+        btnRegistrarVenta.addActionListener(e -> {
+            String codigo = tfCodigoVentas.getText();
+            double monto = Double.parseDouble(tfMontoVenta.getText());
+            empresa.registrarVenta(codigo, monto);
+            JOptionPane.showMessageDialog(this, "Venta registrada correctamente");
+            tfCodigoVentas.setText("");
+            tfMontoVenta.setText("");
+        });
+
+        return panel;
     }
 
-    /* ================= UTILIDADES ================= */
-    private void seleccionarFoto() {
-        JFileChooser ch = new JFileChooser();
-        if (ch.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            rutaFoto = ch.getSelectedFile().getAbsolutePath();
-            lblFoto.setText("Foto cargada");
-        }
+    private JPanel crearPanelActualizarContrato() {
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
+
+        JLabel lblCodigo = new JLabel("Código Empleado Temporal:");
+        lblCodigo.setBounds(20, 30, 180, 25);
+        panel.add(lblCodigo);
+
+        tfCodigoContrato = new JTextField();
+        tfCodigoContrato.setBounds(210, 30, 150, 25);
+        panel.add(tfCodigoContrato);
+
+        JLabel lblFecha = new JLabel("Nueva Fecha Fin:");
+        lblFecha.setBounds(20, 70, 150, 25);
+        panel.add(lblFecha);
+
+        dcNuevaFechaFin = new JDateChooser();
+        dcNuevaFechaFin.setBounds(210, 70, 150, 25);
+        panel.add(dcNuevaFechaFin);
+
+        btnActualizarContrato = new JButton("Actualizar Contrato");
+        btnActualizarContrato.setBounds(210, 110, 150, 30);
+        panel.add(btnActualizarContrato);
+
+        btnActualizarContrato.addActionListener(e -> {
+            String codigo = tfCodigoContrato.getText();
+            Calendar nuevaFecha = Calendar.getInstance();
+            nuevaFecha.setTime(dcNuevaFechaFin.getDate());
+            empresa.actualizarContrato(codigo, nuevaFecha);
+            JOptionPane.showMessageDialog(this, "Contrato actualizado correctamente");
+            tfCodigoContrato.setText("");
+        });
+
+        return panel;
     }
 
-    private Calendar convertirCalendar(Date d) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(d);
-        return c;
+    private JPanel crearPanelReporte() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+
+        taReporte = new JTextArea();
+        taReporte.setEditable(false);
+        taReporte.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+        JScrollPane scroll = new JScrollPane(taReporte);
+        panel.add(scroll, BorderLayout.CENTER);
+
+        btnGenerarReporte = new JButton("Generar Reporte");
+        panel.add(btnGenerarReporte, BorderLayout.SOUTH);
+
+        btnGenerarReporte.addActionListener(e -> {
+            taReporte.setText(empresa.generarReporte());
+        });
+
+        return panel;
     }
-
-    private void registrarEmpleado() {
-        if (txtCodigo.getText().isEmpty() || txtNombre.getText().isEmpty() || txtSalario.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese Código, Nombre y Salario");
-            return;
-        }
-
-        if (!txtSalario.getText().matches("\\d+(\\.\\d+)?")) {
-            JOptionPane.showMessageDialog(this, "Salario inválido");
-            return;
-        }
-
-        double salario = Double.parseDouble(txtSalario.getText());
-        Calendar fContr = convertirCalendar(calContratacion.getDate());
-        Empleado e = null;
-
-        if (comboTipo.getSelectedIndex() == 0) { // Estándar
-            e = new Empleado(txtCodigo.getText(), txtNombre.getText(), salario, rutaFoto, fContr);
-        } else if (comboTipo.getSelectedIndex() == 1) { // Temporal
-            if (calFinContrato.getDate() == null) {
-                JOptionPane.showMessageDialog(this, "Seleccione fecha fin de contrato");
-                return;
-            }
-            Calendar fFin = convertirCalendar(calFinContrato.getDate());
-            e = new EmpleadoTemporal(txtCodigo.getText(), txtNombre.getText(), salario, rutaFoto, fContr, fFin);
-        } else { // Ventas
-            if (txtComision.getText().isEmpty() || !txtComision.getText().matches("\\d+(\\.\\d+)?")) {
-                JOptionPane.showMessageDialog(this, "Comisión inválida");
-                return;
-            }
-            double comision = Double.parseDouble(txtComision.getText());
-            e = new EmpleadoVentas(txtCodigo.getText(), txtNombre.getText(), salario, rutaFoto, fContr, comision);
-        }
-
-        if (!empresa.registrarEmpleado(e)) {
-            JOptionPane.showMessageDialog(this, "Código duplicado");
-        }
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new GUI().setVisible(true));
-    }
-    
-    
-    
 }
-
