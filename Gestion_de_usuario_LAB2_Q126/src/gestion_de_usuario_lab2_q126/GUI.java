@@ -10,12 +10,10 @@ import java.io.File;
 import java.util.Calendar;
 import com.toedter.calendar.JDateChooser;
 
-
 /**
  *
  * @author user
  */
-
 public class GUI extends JFrame {
 
     private Empresa empresa;
@@ -27,7 +25,7 @@ public class GUI extends JFrame {
     private JButton btnSeleccionarFoto, btnRegistrar;
     private JComboBox<String> cbTipoEmpleado;
     private JDateChooser dcFechaContratacion, dcFechaFinContrato;
-    private File archivoFoto; 
+    private File archivoFoto;
 
     // Registro Horas
     private JTextField tfCodigoHoras, tfHoras;
@@ -41,6 +39,10 @@ public class GUI extends JFrame {
     private JTextField tfCodigoContrato;
     private JDateChooser dcNuevaFechaFin;
     private JButton btnActualizarContrato;
+    //Calculo pago
+    private JComboBox<String> cbEmpleadosPago;
+    private JTextField tfPagoMensual;
+    private JButton btnCalcularPago;
 
     // Reporte
     private JTextArea taReporte;
@@ -60,6 +62,7 @@ public class GUI extends JFrame {
         pestañas.addTab("Registrar Horas", crearPanelRegistrarHoras());
         pestañas.addTab("Registrar Ventas", crearPanelRegistrarVentas());
         pestañas.addTab("Actualizar Contrato", crearPanelActualizarContrato());
+        pestañas.addTab("Calcular Pago Mensual", crearPanelCalcularPago());
         pestañas.addTab("Reporte", crearPanelReporte());
 
         add(pestañas);
@@ -159,13 +162,12 @@ public class GUI extends JFrame {
             String tipo = (String) cbTipoEmpleado.getSelectedItem();
             if (empresa.existeEmpleado(codigo)) {
                 JOptionPane.showMessageDialog(this,
-                    "Ya existe un empleado con ese código",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                        "Ya existe un empleado con ese código",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            
             if (tipo.equals("Estándar")) {
                 empresa.registrarEmpleado(new Empleado(codigo, nombre, salario,
                         archivoFoto != null ? archivoFoto.getAbsolutePath() : "",
@@ -185,6 +187,8 @@ public class GUI extends JFrame {
 
             JOptionPane.showMessageDialog(this, "Empleado registrado con éxito");
             limpiarCamposRegistroEmpleado();
+            actualizarComboEmpleadosPago();
+
         });
 
         return panel;
@@ -231,9 +235,9 @@ public class GUI extends JFrame {
 
             if (!empresa.existeEmpleado(codigo)) {
                 JOptionPane.showMessageDialog(this,
-                    "Empleado no encontrado",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                        "Empleado no encontrado",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -245,7 +249,6 @@ public class GUI extends JFrame {
             tfCodigoHoras.setText("");
             tfHoras.setText("");
         });
-
 
         return panel;
     }
@@ -279,7 +282,7 @@ public class GUI extends JFrame {
             String codigo = tfCodigoVentas.getText();
 
             if (!empresa.existeEmpleado(codigo)) {
-                JOptionPane.showMessageDialog(this,"Empleado no encontrado","Error",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Empleado no encontrado", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -291,7 +294,6 @@ public class GUI extends JFrame {
             tfCodigoVentas.setText("");
             tfMontoVenta.setText("");
         });
-
 
         return panel;
     }
@@ -308,7 +310,7 @@ public class GUI extends JFrame {
         tfCodigoContrato.setBounds(210, 30, 150, 25);
         panel.add(tfCodigoContrato);
 
-        JLabel lblFecha = new JLabel("Nueva Fecha Fin:"); 
+        JLabel lblFecha = new JLabel("Nueva Fecha Fin:");
         lblFecha.setBounds(20, 70, 150, 25);
         panel.add(lblFecha);
 
@@ -325,7 +327,7 @@ public class GUI extends JFrame {
             String codigo = tfCodigoContrato.getText();
 
             if (!empresa.existeEmpleado(codigo)) {
-                JOptionPane.showMessageDialog(this,"Empleado no encontrado","Error",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Empleado no encontrado", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -339,69 +341,127 @@ public class GUI extends JFrame {
             tfCodigoContrato.setText("");
         });
 
+        return panel;
+    }
+
+    private JPanel crearPanelCalcularPago() {
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
+
+        JLabel lblEmpleado = new JLabel("Seleccione Empleado:");
+        lblEmpleado.setBounds(20, 30, 150, 25);
+        panel.add(lblEmpleado);
+
+        cbEmpleadosPago = new JComboBox<>();
+        cbEmpleadosPago.setBounds(180, 30, 200, 25);
+        panel.add(cbEmpleadosPago);
+
+        JLabel lblPago = new JLabel("Pago Mensual:");
+        lblPago.setBounds(20, 70, 150, 25);
+        panel.add(lblPago);
+
+        tfPagoMensual = new JTextField();
+        tfPagoMensual.setBounds(180, 70, 200, 25);
+        tfPagoMensual.setEditable(false);
+        panel.add(tfPagoMensual);
+
+        btnCalcularPago = new JButton("Calcular");
+        btnCalcularPago.setBounds(180, 110, 120, 30);
+        panel.add(btnCalcularPago);
+
+        btnCalcularPago.addActionListener(e -> {
+
+            if (cbEmpleadosPago.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(this,
+                        "No hay empleados seleccionados",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String codigo = cbEmpleadosPago.getSelectedItem().toString();
+
+            double pago = empresa.calcularPagoEmpleado(codigo);
+
+            tfPagoMensual.setText(String.format("%.2f", pago));
+        });
 
         return panel;
     }
 
+    private void actualizarComboEmpleadosPago() {
+
+        cbEmpleadosPago.removeAllItems();
+
+        for (Empleado emp : empresa.getEmpleados()) {
+
+            if (emp != null) {
+                cbEmpleadosPago.addItem(emp.getCodigo());
+            }
+        }
+    }
+
     private JPanel crearPanelReporte() {
 
-    JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout());
 
-    JPanel panelEmpleados = new JPanel();
-    panelEmpleados.setLayout(new BoxLayout(panelEmpleados, BoxLayout.Y_AXIS));
+        JPanel panelEmpleados = new JPanel();
+        panelEmpleados.setLayout(new BoxLayout(panelEmpleados, BoxLayout.Y_AXIS));
 
-    JScrollPane scroll = new JScrollPane(panelEmpleados);
-    panel.add(scroll, BorderLayout.CENTER);
+        JScrollPane scroll = new JScrollPane(panelEmpleados);
+        panel.add(scroll, BorderLayout.CENTER);
 
-    btnGenerarReporte = new JButton("Generar Reporte");
-    panel.add(btnGenerarReporte, BorderLayout.SOUTH);
+        btnGenerarReporte = new JButton("Generar Reporte");
+        panel.add(btnGenerarReporte, BorderLayout.SOUTH);
 
-    btnGenerarReporte.addActionListener(e -> {
+        btnGenerarReporte.addActionListener(e -> {
 
-        panelEmpleados.removeAll();
+            panelEmpleados.removeAll();
 
-        for (Empleado emp : empresa.getEmpleados()) { 
-            
-            if (emp == null) continue;
+            for (Empleado emp : empresa.getEmpleados()) {
 
-            JPanel panelEmpleado = new JPanel(new BorderLayout());
-            panelEmpleado.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+                if (emp == null) {
+                    continue;
+                }
 
-            // FOTO
-            JLabel lblFoto;
+                JPanel panelEmpleado = new JPanel(new BorderLayout());
+                panelEmpleado.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-            if (emp.getArchivoFoto() != null && !emp.getArchivoFoto().isEmpty()) {
-                ImageIcon icon = new ImageIcon(emp.getArchivoFoto());
-                Image img = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-                lblFoto = new JLabel(new ImageIcon(img));
-            } else {
-                lblFoto = new JLabel("Sin Foto");
-                lblFoto.setPreferredSize(new Dimension(100,100));
-                lblFoto.setHorizontalAlignment(SwingConstants.CENTER);
+                // FOTO
+                JLabel lblFoto;
+
+                if (emp.getArchivoFoto() != null && !emp.getArchivoFoto().isEmpty()) {
+                    ImageIcon icon = new ImageIcon(emp.getArchivoFoto());
+                    Image img = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+                    lblFoto = new JLabel(new ImageIcon(img));
+                } else {
+                    lblFoto = new JLabel("Sin Foto");
+                    lblFoto.setPreferredSize(new Dimension(100, 100));
+                    lblFoto.setHorizontalAlignment(SwingConstants.CENTER);
+                }
+
+                panelEmpleado.add(lblFoto, BorderLayout.WEST);
+
+                // TEXTO
+                JTextArea info = new JTextArea(emp.mostrarInformacion());
+                info.setEditable(false);
+                info.setFont(new Font("Monospaced", Font.PLAIN, 12));
+                info.setOpaque(false);
+
+                panelEmpleado.add(info, BorderLayout.CENTER);
+
+                panelEmpleado.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
+
+                panelEmpleados.add(panelEmpleado);
+                panelEmpleados.add(Box.createVerticalStrut(10));
+                panelEmpleados.add(new JSeparator());
             }
 
-            panelEmpleado.add(lblFoto, BorderLayout.WEST);
+            panelEmpleados.revalidate();
+            panelEmpleados.repaint();
+        });
 
-            // TEXTO
-            JTextArea info = new JTextArea(emp.mostrarInformacion());
-            info.setEditable(false);
-            info.setFont(new Font("Monospaced", Font.PLAIN, 12));
-            info.setOpaque(false);
-
-            panelEmpleado.add(info, BorderLayout.CENTER);
-
-            panelEmpleado.setMaximumSize(new Dimension(Integer.MAX_VALUE,130));
-
-            panelEmpleados.add(panelEmpleado);
-            panelEmpleados.add(Box.createVerticalStrut(10));
-            panelEmpleados.add(new JSeparator());
-        }
-
-        panelEmpleados.revalidate();
-        panelEmpleados.repaint();
-    });
-
-    return panel;
-}
+        return panel;
+    }
 
 }

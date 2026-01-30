@@ -92,6 +92,19 @@ public class Empresa {
 
     return false;
 }
-    
+    public Empleado getEmpleadoEn(int i) {
+    return empleados[i];
+}
+    public int getCantidadEmpleados() {
+
+    int contador = 0;
+
+    for (Empleado e : empleados) {
+        if (e != null) contador++;
+    }
+
+    return contador;
+}
+
 }
 
