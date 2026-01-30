@@ -10,8 +10,8 @@ import java.util.Calendar;
  */
 
 public class EmpleadoVentas extends Empleado{
-    double[] ventasMensual;
-    double tasaComision;
+    private double[] ventasMensual;
+    private double tasaComision;
     public EmpleadoVentas(String code, String nombre, double salarioBase, String ruteFoto, double tasaComision ){
     super(code, nombre, salarioBase, ruteFoto);
     this.tasaComision=tasaComision;
@@ -38,6 +38,20 @@ public class EmpleadoVentas extends Empleado{
     public double calcularPago(){
        double pagoBase=(this.salarioBase/160)*this.horasTrabajadas;
        return pagoBase+calcComisonMes();
+    }
+    
+    public double calcVentasAnual(){
+        double total=0;
+        for(int i=0;i<12;i++){
+            total=total+this.ventasMensual[i];
+            
+        }
+        return total;
+    }
+    
+    @Override
+    public String mostrarInformacion(){
+        return super.mostrarInformacion()+"Ventas Anuales: "+calcVentasAnual();
     }
 
     
